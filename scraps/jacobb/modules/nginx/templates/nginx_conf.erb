@@ -1,0 +1,37 @@
+upstream <%= name %> {
+    server 127.0.0.1:<%= port %>;
+}
+
+
+<% if shortdomain != false  %>
+server {
+    listen   80;
+    server_name <%= shortdomain %>;
+    rewrite ^/(.*) http://<%= fulldomain %>/$1 permanent;
+}
+<% end -%>
+
+server {
+    listen  80;
+    server_name <%= fulldomain %>;
+
+    access_log  /var/log/nginx/<%= name %>.access.log;
+    
+    location / {
+        # This checks for a file called simply "downtime" in the public
+        # directory, and puts up the downtime page if it exists.
+        if (-f var/www/<%= name %>/code/<%= name %>/downtime) {
+            return 503;
+        }
+
+        proxy_pass http://<%= name %>;
+    }
+
+    location /content {
+        alias /var/www/<%= name %>/code/<%= name %>/content;
+    }
+    
+    location /media {
+        alias /var/www/<%= name %>/lib/python2.6/site-packages/django/contrib/admin/media;
+    }
+}

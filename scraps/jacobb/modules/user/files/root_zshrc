@@ -1,0 +1,1 @@
+alias pupup='puppet /etc/puppet/manifests/site.pp'
